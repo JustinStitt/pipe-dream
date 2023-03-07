@@ -2,7 +2,7 @@
   import * as util from "../utils.js";
   import { createEventDispatcher } from "svelte";
   import { Howl, Howler } from "howler";
-  import { piece_queue, front } from "../stores";
+  import { piece_queue, front, started } from "../stores";
   import { slide, fade } from "svelte/transition";
   export let block;
   export let piece_type = -1;
@@ -14,12 +14,12 @@
 
   let water_amount = 0.0;
 
-  // TODO: dispatch on:exit on:enter
   $: is_piece = piece_type != -1;
 
   const dispatch = createEventDispatcher();
 
-  export let enter = (from_delta) => {
+  export const enter = (from_delta) => {
+    if (piece_type == 4) water_amount = 0; // cross
     if (water_amount > 0.01 || !is_piece) {
       return;
     }
@@ -39,11 +39,11 @@
         });
         clearInterval(water_interval);
       }
-    }, 125);
+    }, 175);
   };
 
   const click = () => {
-    if (is_piece) return;
+    if (is_piece || !$started) return;
 
     var place_sound = new Howl({
       src: ["assets/place.wav"],
@@ -52,7 +52,6 @@
 
     place_sound.play();
 
-    /**/
     block.style["background-color"] = "#057705";
     is_piece = true;
     piece_type = front().type;
@@ -60,8 +59,6 @@
     $piece_queue = [...$piece_queue.slice(0, $piece_queue.length - 1), ,];
     addPiece();
   };
-
-  // TODO: Howler for sounds
 </script>
 
 <div

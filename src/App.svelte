@@ -2,11 +2,10 @@
   import * as util from "./utils.js";
   import { slide, fade } from "svelte/transition";
   import Block from "./lib/Block.svelte";
-  import { piece_queue, id } from "./stores";
+  import { piece_queue, id, started } from "./stores";
   let n = 12;
 
   let score = 0;
-  let started = false;
 
   let button_text = "Start";
 
@@ -38,7 +37,7 @@
   const ROUND_TIMER = 20;
 
   const newRound = () => {
-    started = true;
+    $started = true;
     button_text = "Reset";
     timer = ROUND_TIMER;
     bindings.forEach((e) => {
@@ -46,8 +45,10 @@
     });
     piece_types = Array(n * n).fill(-1);
     strt = util.rand_range(0, n * n);
+    while (strt % n == 0 || strt % n == n - 1) strt = util.rand_range(0, n * n);
     end = util.rand_range(0, n * n);
-    while (end == strt) end = util.rand_range(0, n * n);
+    while (end == strt || end % n == 0 || end % n == n - 1)
+      end = util.rand_range(0, n * n);
     // bindings[strt].style["background-color"] = "blue";
     bindings[end].style["background-color"] = "orange";
 
@@ -61,17 +62,19 @@
     // blocks = Array.from(Array(n * n).keys());
   };
 
-  let timer = 20;
+  let timer = ROUND_TIMER;
+
+  let countdown;
 
   const setTimer = (delay) => {
-    setTimeout(() => {
-      console.log("STARTING WATER FLOW");
-      enters[strt](); // start water flow
-    }, delay * 1000);
+    clearInterval(countdown);
 
-    let countdown = setInterval(() => {
+    countdown = setInterval(() => {
       timer -= 1;
-      if (timer == 0) clearInterval(countdown);
+      if (timer == 0) {
+        enters[strt](); // start water flow
+        clearInterval(countdown);
+      }
     }, 1000);
   };
 
@@ -84,7 +87,6 @@
     };
 
     $piece_queue = [new_piece, ...$piece_queue];
-    console.log("pieces: ", pieces);
   };
 
   let img_paths = [
@@ -102,7 +104,7 @@
   ];
 
   const handleExit = (event) => {
-    score += 100;
+    score += 10;
     let neighbours = event.detail.neighbours;
     let block_id = event.detail.block_id;
     // start all neighbors
@@ -168,7 +170,7 @@
 
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
-      {#if started}
+      {#if $started}
         {#each $piece_queue as piece (piece.id)}
           <Block
             bind:block={pieces[piece]}
