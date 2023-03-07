@@ -2,10 +2,8 @@
   import * as util from "./utils.js";
   import { slide, fade } from "svelte/transition";
   import Block from "./lib/Block.svelte";
-  import { piece_queue, id, started } from "./stores";
+  import { piece_queue, id, started, score } from "./stores";
   let n = 12;
-
-  let score = 0;
 
   let button_text = "Start";
 
@@ -34,10 +32,16 @@
 
   let strt, end;
 
+  let lost = false;
+  let win = false;
+
   const ROUND_TIMER = 20;
 
   const newRound = () => {
     $started = true;
+    lost = false;
+    win = false;
+    $score = 0;
     button_text = "Reset";
     timer = ROUND_TIMER;
     bindings.forEach((e) => {
@@ -104,7 +108,7 @@
   ];
 
   const handleExit = (event) => {
-    score += 10;
+    $score += 10;
     let neighbours = event.detail.neighbours;
     let block_id = event.detail.block_id;
     // start all neighbors
@@ -125,6 +129,7 @@
           if (piece_types[idx] >= 7) {
             // hit the goal
             console.log("YOU WIN");
+            win = true;
             return;
           }
           enters[idx](delta);
@@ -133,6 +138,7 @@
     });
     if (!flowed_elsewhere) {
       console.log("YOU LOST");
+      lost = true;
     }
   };
 
@@ -143,7 +149,8 @@
 
 <main>
   <div class="info">
-    <h3>Score: {score}</h3>
+    <h3>Score: {$score}</h3>
+    <h2>PIPE DREAM</h2>
     <h3>Time: {timer}</h3>
   </div>
   <div class="container">
@@ -185,9 +192,12 @@
       {/if}
     </div>
   </div>
-  <div class="buttons">
-    <button on:click={newRound}>{button_text}</button>
-  </div>
+  {#if lost || !$started || win}
+    <button class="main-button" on:click={newRound}>{button_text}</button>
+  {/if}
+  {#if lost || win}
+    <h1 class="big-text">YOU {lost ? "LOST" : win ? "WIN" : "WHAT"}</h1>
+  {/if}
 </main>
 
 <style>
@@ -249,5 +259,21 @@
     border: 2px solid black;
     padding: 10px;
     user-select: none;
+  }
+
+  .big-text {
+    position: absolute;
+    top: 37%;
+    left: 52%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+
+  .main-button {
+    font-size: 2rem;
+    width: 200px;
+    position: absolute;
+    top: 51%;
+    left: 52%;
+    transform: translateX(-50%) translateY(-50%);
   }
 </style>

@@ -2,8 +2,8 @@
   import * as util from "../utils.js";
   import { createEventDispatcher } from "svelte";
   import { Howl, Howler } from "howler";
-  import { piece_queue, front, started } from "../stores";
-  import { slide, fade } from "svelte/transition";
+  import { piece_queue, front, started, score } from "../stores";
+  import { slide } from "svelte/transition";
   export let block;
   export let piece_type = -1;
   export let addPiece;
@@ -17,6 +17,15 @@
   $: is_piece = piece_type != -1;
 
   const dispatch = createEventDispatcher();
+
+  const destroyBlock = () => {
+    if (water_amount > 0.01) return; // can't destroy water block
+    if (piece_type >= 7) return; // cant destroy nubs
+    if ($score < 5) return; // not enough score
+    piece_type = -1;
+    piece_types[block_id] = -1;
+    $score -= 5; // cost to destroy pipe
+  };
 
   export const enter = (from_delta) => {
     if (piece_type == 4) water_amount = 0; // cross
@@ -52,7 +61,8 @@
 
     place_sound.play();
 
-    block.style["background-color"] = "#057705";
+    block.setAttribute("id", "placed");
+
     is_piece = true;
     piece_type = front().type;
     piece_types[block_id] = piece_type;
@@ -67,6 +77,7 @@
   on:click={click}
   style={`background-color:#0000${Math.floor(water_amount * 255).toString(16)}`}
   in:slide
+  on:contextmenu|preventDefault={destroyBlock}
 >
   {#if is_piece}
     <img src={`${img_paths[piece_type]}`} draggable="false" />
@@ -81,12 +92,16 @@
     image-rendering: pixelated;
   }
 
+  :global(#placed) {
+    background-color: #057705 !important;
+  }
+
   .block {
     width: 50px;
     height: 50px;
     background-color: green;
     /* border: 1px dotted aliceblue; */
-    border: 1px dashed #333;
+    border: 1px dashed #343;
     border-radius: 2%;
     user-select: none;
   }
