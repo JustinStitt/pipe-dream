@@ -2,6 +2,8 @@
   import * as util from "./utils.js";
   import { slide, fade } from "svelte/transition";
   import Block from "./lib/Block.svelte";
+  import { onMount } from "svelte";
+  import { piece_queue } from "./stores";
   let n = 12;
 
   $: blocks = Array.from(Array(n * n).keys());
@@ -10,12 +12,8 @@
 
   const newRound = () => {
     bindings.forEach((e) => {
-      if (e) {
-        console.log(e);
-        e.reset();
-      }
+      e.style["background-color"] = "green";
     });
-    console.log(bindings);
     let strt = util.rand_range(0, n * n);
     let end = util.rand_range(0, n * n);
     while (end == strt) end = util.rand_range(0, n * n);
@@ -33,7 +31,19 @@
     };
   };
 
-  $: pieces = [addPiece(0), addPiece(1), addPiece(2), addPiece(3), addPiece(4)];
+  $: pieces = $piece_queue;
+
+  $piece_queue = [
+    addPiece(0),
+    addPiece(1),
+    addPiece(2),
+    addPiece(3),
+    addPiece(4),
+  ];
+
+  onMount(() => {
+    newRound();
+  });
 </script>
 
 <main>
@@ -45,21 +55,14 @@
       )}; grid-template-rows: ${"1fr ".repeat(n)};`}
     >
       {#each blocks as block}
-        <Block bind:block={bindings[block]} />
+        <Block is_piece={false} bind:block={bindings[block]} />
       {/each}
     </div>
 
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
       {#each pieces as piece (piece.id)}
-        <div
-          class="block"
-          style={`background-color: ${
-            piece.id == pieces[pieces.length - 1].id ? "red" : "green"
-          }`}
-        >
-          {piece.type}
-        </div>
+        <Block is_piece={true} piece_type={piece.type}>{piece.id}</Block>
       {/each}
     </div>
   </div>
