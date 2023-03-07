@@ -1,45 +1,87 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import Counter from './lib/Counter.svelte'
+  import * as util from "./utils.js";
+  import { slide, fade } from "svelte/transition";
+  import Block from "./lib/Block.svelte";
+  let n = 12;
+
+  $: blocks = Array.from(Array(n * n).keys());
+
+  let bindings = Array(n * n).fill(null);
+
+  const newRound = () => {
+    bindings.forEach((e) => {
+      if (e) {
+        console.log(e);
+        e.reset();
+      }
+    });
+    console.log(bindings);
+    let strt = util.rand_range(0, n * n);
+    let end = util.rand_range(0, n * n);
+    while (end == strt) end = util.rand_range(0, n * n);
+    bindings[strt].style["background-color"] = "blue";
+    bindings[end].style["background-color"] = "orange";
+    blocks = Array.from(Array(n * n).keys());
+  };
+
+  let id = 0;
+  const addPiece = (type) => {
+    id += 1;
+    return {
+      type: type,
+      id: id,
+    };
+  };
+
+  $: pieces = [addPiece(0), addPiece(1), addPiece(2), addPiece(3), addPiece(4)];
 </script>
 
 <main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer"> 
-      <img src="/vite.svg" class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer"> 
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+  <div class="container">
+    <div
+      class="board"
+      style={`grid-template-columns: ${"1fr ".repeat(
+        n
+      )}; grid-template-rows: ${"1fr ".repeat(n)};`}
+    >
+      {#each blocks as block}
+        <Block bind:block={bindings[block]} />
+      {/each}
+    </div>
+
+    <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
+    <div class="pieces">
+      {#each pieces as piece (piece.id)}
+        <div
+          class="block"
+          style={`background-color: ${
+            piece.id == pieces[pieces.length - 1].id ? "red" : "green"
+          }`}
+        >
+          {piece.type}
+        </div>
+      {/each}
+    </div>
   </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  <button on:click={newRound}>test</button>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
+  .container {
+    background-color: yellow;
+    padding: 10px;
+    display: flex;
+    display: flex;
+    flex-direction: row-reverse;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+  .pieces {
+    background-color: rebeccapurple;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+
+  .board {
+    display: grid;
+    background-color: orange;
+    padding: 10px;
   }
 </style>
