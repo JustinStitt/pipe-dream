@@ -6,7 +6,7 @@
   let n = 12;
 
   let score = 0;
-  let time_remaining = 5;
+  let started = false;
 
   let button_text = "Start";
 
@@ -14,6 +14,9 @@
 
   $: bindings = Array(n * n).fill(null);
   $: piece_types = Array(n * n).fill(-1);
+  $: enters = Array(n * n).fill(null);
+
+  $: pieces = Array(5).fill(0);
 
   let mappings = [
     [-1, n],
@@ -23,18 +26,29 @@
     [-1, 1, n, -n],
     [-1, 1],
     [-n, n],
+    // nubs
+    [n],
+    [-1],
+    [1],
+    [-n],
   ];
 
+  let strt, end;
+
+  const ROUND_TIMER = 20;
+
   const newRound = () => {
+    started = true;
     button_text = "Reset";
+    timer = ROUND_TIMER;
     bindings.forEach((e) => {
       e.style["background-color"] = "green";
     });
     piece_types = Array(n * n).fill(-1);
-    let strt = util.rand_range(0, n * n);
-    let end = util.rand_range(0, n * n);
+    strt = util.rand_range(0, n * n);
+    end = util.rand_range(0, n * n);
     while (end == strt) end = util.rand_range(0, n * n);
-    bindings[strt].style["background-color"] = "blue";
+    // bindings[strt].style["background-color"] = "blue";
     bindings[end].style["background-color"] = "orange";
 
     let start_orient = util.rand_range(0, 4);
@@ -43,12 +57,26 @@
     piece_types[strt] = 7 + start_orient;
     piece_types[end] = 7 + end_orient;
 
+    setTimer(timer);
     // blocks = Array.from(Array(n * n).keys());
+  };
+
+  let timer = 20;
+
+  const setTimer = (delay) => {
+    setTimeout(() => {
+      console.log("STARTING WATER FLOW");
+      enters[strt](); // start water flow
+    }, delay * 1000);
+
+    let countdown = setInterval(() => {
+      timer -= 1;
+      if (timer == 0) clearInterval(countdown);
+    }, 1000);
   };
 
   const addPiece = () => {
     $id += 1;
-    console.log("id: ", $id);
 
     let new_piece = {
       type: util.rand_range(0, 7),
@@ -56,6 +84,7 @@
     };
 
     $piece_queue = [new_piece, ...$piece_queue];
+    console.log("pieces: ", pieces);
   };
 
   let img_paths = [
@@ -72,14 +101,48 @@
     "assets/nub-top.png",
   ];
 
+  const handleExit = (event) => {
+    score += 100;
+    let neighbours = event.detail.neighbours;
+    let block_id = event.detail.block_id;
+    // start all neighbors
+    let flowed_elsewhere = false;
+    neighbours.forEach((delta) => {
+      let idx = block_id + delta;
+      if (idx < 0 || idx > n * n - 1) {
+      } else if (piece_types[idx] != -1) {
+        // start filling neighbour only if it lines up
+        let other_mappings = mappings[piece_types[idx]];
+        // check if -delta in other mappings
+        let found = false;
+        for (let i = 0; i < other_mappings.length; ++i) {
+          if (other_mappings[i] == -1 * delta) found = true;
+        }
+        if (found) {
+          flowed_elsewhere = true;
+          if (piece_types[idx] >= 7) {
+            // hit the goal
+            console.log("YOU WIN");
+            return;
+          }
+          enters[idx](delta);
+        }
+      }
+    });
+    if (!flowed_elsewhere) {
+      console.log("YOU LOST");
+    }
+  };
+
   $piece_queue = [];
+  // starting pieces
   for (let i = 0; i < 5; ++i) addPiece();
 </script>
 
 <main>
   <div class="info">
     <h3>Score: {score}</h3>
-    <h3>Time: {time_remaining}</h3>
+    <h3>Time: {timer}</h3>
   </div>
   <div class="container">
     <div
@@ -95,15 +158,29 @@
           {addPiece}
           {img_paths}
           {mappings}
+          bind:enter={enters[block]}
+          block_id={block}
+          on:exit={handleExit}
+          bind:piece_types
         />
       {/each}
     </div>
 
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
-      {#each $piece_queue as piece (piece.id)}
-        <Block piece_type={piece.type} {img_paths} {mappings}>{piece.id}</Block>
-      {/each}
+      {#if started}
+        {#each $piece_queue as piece (piece.id)}
+          <Block
+            bind:block={pieces[piece]}
+            piece_type={piece.type}
+            {img_paths}
+            {mappings}
+            block_id={piece}
+            {addPiece}
+            {piece_types}
+          />
+        {/each}
+      {/if}
     </div>
   </div>
   <div class="buttons">
@@ -134,6 +211,8 @@
 
   .pieces {
     background-color: #bbb;
+    min-width: 60px;
+    width: 60px;
   }
 
   .board {
@@ -149,6 +228,19 @@
     justify-content: center;
     gap: 10vw;
     background-color: #aaa;
+  }
+
+  .pieces > :global(*) {
+    filter: opacity(0.65);
+    transition: all 0.1s ease-in-out;
+    margin-top: 3px;
+  }
+
+  .pieces > :global(:last-child) {
+    margin-top: 10px;
+    border: 2px solid aliceblue;
+    transform: scale(1.2);
+    filter: opacity(1);
   }
 
   button {
