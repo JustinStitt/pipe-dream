@@ -16,12 +16,12 @@
   // TODO: Howler for sounds
 
   let img_paths = [
-    "/src/assets/pipe-x-y.png",
-    "/src/assets/pipe-x.png",
-    "/src/assets/pipe-top-left.png",
-    "/src/assets/pipe-x-y.png",
-    "/src/assets/pipe-x.png",
-    "/src/assets/pipe-top-left.png",
+    "assets/pipe-x-y.png",
+    "assets/pipe-x.png",
+    "assets/pipe-top-left.png",
+    "assets/pipe-x-y.png",
+    "assets/pipe-x.png",
+    "assets/pipe-top-left.png",
   ];
 </script>
 
