@@ -2,6 +2,8 @@
   import * as util from "./utils.js";
   import { slide, fade } from "svelte/transition";
   import Block from "./lib/Block.svelte";
+  import { onMount } from "svelte";
+  import { piece_queue } from "./stores";
   let n = 12;
 
   $: blocks = Array.from(Array(n * n).keys());
@@ -29,7 +31,19 @@
     };
   };
 
-  $: pieces = [addPiece(0), addPiece(1), addPiece(2), addPiece(3), addPiece(4)];
+  $: pieces = $piece_queue;
+
+  $piece_queue = [
+    addPiece(0),
+    addPiece(1),
+    addPiece(2),
+    addPiece(3),
+    addPiece(4),
+  ];
+
+  onMount(() => {
+    newRound();
+  });
 </script>
 
 <main>
@@ -48,15 +62,7 @@
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
       {#each pieces as piece (piece.id)}
-        <Block is_piece={true}>{piece.id}</Block>
-        <!-- <div -->
-        <!--   class="block" -->
-        <!--   style={`background-color: ${ -->
-        <!--     piece.id == pieces[pieces.length - 1].id ? "red" : "green" -->
-        <!--   }`} -->
-        <!-- > -->
-        <!--   {piece.type} -->
-        <!-- </div> -->
+        <Block is_piece={true} piece_type={piece.type}>{piece.id}</Block>
       {/each}
     </div>
   </div>
