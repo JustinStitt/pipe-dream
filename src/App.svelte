@@ -2,15 +2,20 @@
   import * as util from "./utils.js";
   import { slide, fade } from "svelte/transition";
   import Block from "./lib/Block.svelte";
-  import { onMount } from "svelte";
   import { piece_queue } from "./stores";
   let n = 12;
+
+  let score = 0;
+  let time_remaining = 5;
+
+  let button_text = "Start";
 
   $: blocks = Array.from(Array(n * n).keys());
 
   let bindings = Array(n * n).fill(null);
 
   const newRound = () => {
+    button_text = "Reset";
     bindings.forEach((e) => {
       e.style["background-color"] = "green";
     });
@@ -40,13 +45,13 @@
     addPiece(3),
     addPiece(4),
   ];
-
-  onMount(() => {
-    newRound();
-  });
 </script>
 
 <main>
+  <div class="info">
+    <h3>Score: {score}</h3>
+    <h3>Time: {time_remaining}</h3>
+  </div>
   <div class="container">
     <div
       class="board"
@@ -66,25 +71,54 @@
       {/each}
     </div>
   </div>
-  <button on:click={newRound}>test</button>
+  <div class="buttons">
+    <button on:click={newRound}>{button_text}</button>
+  </div>
 </main>
 
 <style>
-  .container {
-    background-color: yellow;
-    padding: 10px;
+  main {
+    border: 3px solid black;
+  }
+
+  .info {
     display: flex;
+    padding-left: 20px;
+    padding-right: 20px;
+    justify-content: space-between;
+    background-color: #aaa;
+    border-bottom: 3px solid black;
+  }
+
+  .container {
+    background-color: #bbb;
+    padding: 10px;
     display: flex;
     flex-direction: row-reverse;
   }
 
   .pieces {
-    background-color: rebeccapurple;
+    background-color: #bbb;
   }
 
   .board {
     display: grid;
-    background-color: orange;
+    background-color: #bbb;
     padding: 10px;
+  }
+
+  .buttons {
+    border-top: 3px solid black;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10vw;
+    background-color: #aaa;
+  }
+
+  button {
+    border: 2px solid black;
+    padding: 10px;
+    user-select: none;
   }
 </style>
