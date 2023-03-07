@@ -1,11 +1,20 @@
 <script>
   import * as util from "../utils.js";
   import { front } from "../stores";
+  import {Howl, Howler} from 'howler';
   export let block;
   export let is_piece;
   export let piece_type;
   const click = () => {
     if (is_piece) return;
+
+    var place_sound = new Howl({
+      src: ['assets/place.wav'],
+      volume: 0.5
+    });
+
+    place_sound.play()
+
     /**/
     block.style["background-color"] = "red";
     is_piece = true;
