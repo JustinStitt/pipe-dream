@@ -66,10 +66,10 @@
     "assets/pipe-x-y.png",
     "assets/pipe-x.png",
     "assets/pipe-y.png",
-    "assets/nub-bottom.png", // 7
-    "assets/nub-left.png",
-    "assets/nub-right.png",
-    "assets/nub-top.png",
+    "assets/knub-bottom.png", // 7
+    "assets/knub-left.png",
+    "assets/knub-right.png",
+    "assets/knub-top.png",
   ];
 
   $piece_queue = [];
