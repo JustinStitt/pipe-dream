@@ -10,12 +10,8 @@
 
   const newRound = () => {
     bindings.forEach((e) => {
-      if (e) {
-        console.log(e);
-        e.reset();
-      }
+      e.style["background-color"] = "green";
     });
-    console.log(bindings);
     let strt = util.rand_range(0, n * n);
     let end = util.rand_range(0, n * n);
     while (end == strt) end = util.rand_range(0, n * n);
@@ -45,21 +41,22 @@
       )}; grid-template-rows: ${"1fr ".repeat(n)};`}
     >
       {#each blocks as block}
-        <Block bind:block={bindings[block]} />
+        <Block is_piece={false} bind:block={bindings[block]} />
       {/each}
     </div>
 
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
       {#each pieces as piece (piece.id)}
-        <div
-          class="block"
-          style={`background-color: ${
-            piece.id == pieces[pieces.length - 1].id ? "red" : "green"
-          }`}
-        >
-          {piece.type}
-        </div>
+        <Block is_piece={true}>{piece.id}</Block>
+        <!-- <div -->
+        <!--   class="block" -->
+        <!--   style={`background-color: ${ -->
+        <!--     piece.id == pieces[pieces.length - 1].id ? "red" : "green" -->
+        <!--   }`} -->
+        <!-- > -->
+        <!--   {piece.type} -->
+        <!-- </div> -->
       {/each}
     </div>
   </div>
