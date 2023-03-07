@@ -37,6 +37,15 @@
 
   const ROUND_TIMER = 20;
 
+  const isBadNubPlacement = (idx) => {
+    return (
+      idx % n == 0 ||
+      idx % n == n - 1 ||
+      Math.floor(idx / n) == 0 ||
+      Math.floor(idx / n) == n - 1
+    );
+  };
+
   const newRound = () => {
     $started = true;
     lost = false;
@@ -49,9 +58,9 @@
     });
     piece_types = Array(n * n).fill(-1);
     strt = util.rand_range(0, n * n);
-    while (strt % n == 0 || strt % n == n - 1) strt = util.rand_range(0, n * n);
+    while (isBadNubPlacement(strt)) strt = util.rand_range(0, n * n);
     end = util.rand_range(0, n * n);
-    while (end == strt || end % n == 0 || end % n == n - 1)
+    while (end == strt || isBadNubPlacement(end))
       end = util.rand_range(0, n * n);
     // bindings[strt].style["background-color"] = "blue";
     bindings[end].style["background-color"] = "orange";
