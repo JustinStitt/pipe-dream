@@ -61,6 +61,7 @@
 
     place_sound.play();
 
+    block.style["background-color"] = "#057705";
     block.setAttribute("id", "placed");
 
     is_piece = true;
@@ -93,7 +94,7 @@
   }
 
   :global(#placed) {
-    background-color: #057705 !important;
+    /* background-color: #057705 !important; */
   }
 
   .block {
@@ -101,7 +102,7 @@
     height: 50px;
     background-color: green;
     /* border: 1px dotted aliceblue; */
-    border: 1px dashed #343;
+    border: 1px dashed #333;
     border-radius: 2%;
     user-select: none;
   }
