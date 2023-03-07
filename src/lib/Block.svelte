@@ -1,12 +1,30 @@
 <script>
   import * as util from "../utils.js";
+  import { createEventDispatcher } from "svelte";
   import { Howl, Howler } from "howler";
   import { piece_queue, front, id } from "../stores";
   export let block;
-  export let is_piece;
   export let piece_type = -1;
   export let addPiece;
   export let img_paths;
+  export let mappings;
+
+  let water_amount = 0.0;
+
+  // TODO: dispatch on:exit on:enter
+  $: is_piece = piece_type != -1;
+
+  const dispatch = createEventDispatcher();
+
+  let ayo = setInterval(() => {
+    if (is_piece) water_amount += 0.1;
+    if (water_amount > 0.9) {
+      dispatch("exit", {
+        neighbours: mappings[piece_type],
+      });
+      clearInterval(ayo);
+    }
+  }, 250);
 
   const click = () => {
     if (is_piece) return;
@@ -32,7 +50,12 @@
   // TODO: Howler for sounds
 </script>
 
-<div class="block" bind:this={block} on:click={click}>
+<div
+  class="block"
+  bind:this={block}
+  on:click={click}
+  style={`background-color:#0000${Math.floor(water_amount * 255).toString(16)}`}
+>
   {#if is_piece}
     <img src={`${img_paths[piece_type]}`} draggable="false" />
   {/if}

@@ -12,19 +12,38 @@
 
   $: blocks = Array.from(Array(n * n).keys());
 
-  let bindings = Array(n * n).fill(null);
+  $: bindings = Array(n * n).fill(null);
+  $: piece_types = Array(n * n).fill(-1);
+
+  let mappings = [
+    [-1, n],
+    [1, n],
+    [-1, -n],
+    [1, -n],
+    [-1, 1, n, -n],
+    [-1, 1],
+    [-n, n],
+  ];
 
   const newRound = () => {
     button_text = "Reset";
     bindings.forEach((e) => {
       e.style["background-color"] = "green";
     });
+    piece_types = Array(n * n).fill(-1);
     let strt = util.rand_range(0, n * n);
     let end = util.rand_range(0, n * n);
     while (end == strt) end = util.rand_range(0, n * n);
     bindings[strt].style["background-color"] = "blue";
     bindings[end].style["background-color"] = "orange";
-    blocks = Array.from(Array(n * n).keys());
+
+    let start_orient = util.rand_range(0, 4);
+    let end_orient = util.rand_range(0, 4);
+
+    piece_types[strt] = 7 + start_orient;
+    piece_types[end] = 7 + end_orient;
+
+    // blocks = Array.from(Array(n * n).keys());
   };
 
   const addPiece = () => {
@@ -47,6 +66,10 @@
     "assets/pipe-x-y.png",
     "assets/pipe-x.png",
     "assets/pipe-y.png",
+    "assets/nub-bottom.png", // 7
+    "assets/nub-left.png",
+    "assets/nub-right.png",
+    "assets/nub-top.png",
   ];
 
   $piece_queue = [];
@@ -67,10 +90,11 @@
     >
       {#each blocks as block}
         <Block
-          is_piece={false}
+          piece_type={piece_types[block]}
           bind:block={bindings[block]}
           {addPiece}
           {img_paths}
+          {mappings}
         />
       {/each}
     </div>
@@ -78,9 +102,7 @@
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
       {#each $piece_queue as piece (piece.id)}
-        <Block is_piece={true} piece_type={piece.type} {img_paths}
-          >{piece.id}</Block
-        >
+        <Block piece_type={piece.type} {img_paths} {mappings}>{piece.id}</Block>
       {/each}
     </div>
   </div>
