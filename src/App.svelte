@@ -2,7 +2,7 @@
   import * as util from "./utils.js";
   import { slide, fade } from "svelte/transition";
   import Block from "./lib/Block.svelte";
-  import { piece_queue } from "./stores";
+  import { piece_queue, id } from "./stores";
   let n = 12;
 
   let score = 0;
@@ -27,24 +27,30 @@
     blocks = Array.from(Array(n * n).keys());
   };
 
-  let id = 0;
-  const addPiece = (type) => {
-    id += 1;
-    return {
-      type: type,
-      id: id,
+  const addPiece = () => {
+    $id += 1;
+    console.log("id: ", $id);
+
+    let new_piece = {
+      type: util.rand_range(0, 7),
+      id: $id,
     };
+
+    $piece_queue = [new_piece, ...$piece_queue];
   };
 
-  $: pieces = $piece_queue;
-
-  $piece_queue = [
-    addPiece(0),
-    addPiece(1),
-    addPiece(2),
-    addPiece(3),
-    addPiece(4),
+  let img_paths = [
+    "assets/pipe-bottom-left.png",
+    "assets/pipe-bottom-right.png",
+    "assets/pipe-top-left.png",
+    "assets/pipe-top-right.png",
+    "assets/pipe-x-y.png",
+    "assets/pipe-x.png",
+    "assets/pipe-y.png",
   ];
+
+  $piece_queue = [];
+  for (let i = 0; i < 5; ++i) addPiece();
 </script>
 
 <main>
@@ -60,14 +66,21 @@
       )}; grid-template-rows: ${"1fr ".repeat(n)};`}
     >
       {#each blocks as block}
-        <Block is_piece={false} bind:block={bindings[block]} />
+        <Block
+          is_piece={false}
+          bind:block={bindings[block]}
+          {addPiece}
+          {img_paths}
+        />
       {/each}
     </div>
 
     <!-- <input type="range" min="4" max="12" bind:value={n} /> -->
     <div class="pieces">
-      {#each pieces as piece (piece.id)}
-        <Block is_piece={true} piece_type={piece.type}>{piece.id}</Block>
+      {#each $piece_queue as piece (piece.id)}
+        <Block is_piece={true} piece_type={piece.type} {img_paths}
+          >{piece.id}</Block
+        >
       {/each}
     </div>
   </div>
