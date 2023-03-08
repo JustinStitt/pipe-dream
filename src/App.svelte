@@ -57,6 +57,18 @@
       e.style["background-color"] = "green";
     });
     piece_types = Array(n * n).fill(-1);
+    console.log(
+      "piece_types: ",
+      piece_types,
+      " bindings: ",
+      bindings,
+      " blocks: ",
+      blocks,
+      " enters: ",
+      enters,
+      " pieces: ",
+      pieces
+    );
     strt = util.rand_range(0, n * n);
     while (isBadNubPlacement(strt)) strt = util.rand_range(0, n * n);
     end = util.rand_range(0, n * n);
@@ -95,7 +107,7 @@
     $id += 1;
 
     let new_piece = {
-      type: util.rand_range(0, 7),
+      type: util.rand_range(0, 7), // 0, 7
       id: $id,
     };
 
