@@ -74,18 +74,19 @@
       if (Math.abs(from_delta) > 1) {
         water_overlay.classList.add("straight");
         water_overlay.src = "assets/pipe-x-y-w.png";
-        water_overlay.style["transform"] = "rotate(180deg)";
       } else {
         // water_overlay.style.visibility = "hidden";
         water_overlay_02.classList.add("horizontal");
         water_overlay_02.style.visibility = "visible";
       }
-      if (from_delta <= -1) {
+      if (from_delta < -1) {
         water_overlay.style["transform"] = "rotate(180deg)";
       } else if (from_delta == 1) {
         water_overlay_02.style["transform"] = "rotate(180deg)";
       } else if (from_delta == -1) {
-        water_overlay_02.style["transform"] = "rotate(-90deg)";
+        water_overlay_02.style["transform"] = "rotate(0)";
+      } else if (from_delta >= 1) {
+        water_overlay_02.style["transform"] = "rotate(180deg)";
       }
     }
 
