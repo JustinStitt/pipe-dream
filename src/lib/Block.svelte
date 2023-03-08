@@ -39,7 +39,8 @@
   // need map of from_delta and piece_id
 
   const handleAnimation = (from_delta) => {
-    water_overlay.style.visibility = "visible";
+    if (piece_type != 4 || Math.abs(from_delta) > 1)
+      water_overlay.style.visibility = "visible";
     if (piece_type == 5) {
       water_overlay.src = "assets/pipe-y-w.png";
       water_overlay.classList.add("straight");
@@ -73,8 +74,9 @@
       if (Math.abs(from_delta) > 1) {
         water_overlay.classList.add("straight");
         water_overlay.src = "assets/pipe-x-y-w.png";
+        water_overlay.style["transform"] = "rotate(180deg)";
       } else {
-        water_overlay.style.visibility = "hidden";
+        // water_overlay.style.visibility = "hidden";
         water_overlay_02.classList.add("horizontal");
         water_overlay_02.style.visibility = "visible";
       }
@@ -205,7 +207,7 @@
       <img
         bind:this={water_overlay_02}
         class="water-overlay"
-        src="assets/pipe-x-w-y.png"
+        src="assets/pipe-x-w.png"
         draggable="false"
         alt="none"
       />
