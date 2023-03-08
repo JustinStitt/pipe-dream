@@ -107,7 +107,7 @@
     $id += 1;
 
     let new_piece = {
-      type: util.rand_range(0, 7),
+      type: util.rand_range(0, 7), // 0, 7
       id: $id,
     };
 
