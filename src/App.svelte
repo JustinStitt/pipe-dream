@@ -139,6 +139,7 @@
             // hit the goal
             console.log("YOU WIN");
             win = true;
+            $started = false;
             return;
           }
           enters[idx](delta);
@@ -147,7 +148,9 @@
     });
     if (!flowed_elsewhere) {
       console.log("YOU LOST");
+      $started = false;
       lost = true;
+      return;
     }
   };
 
