@@ -14,6 +14,12 @@
 
   let water_amount = 0.0;
 
+  const onPieceTypeChange = (pt) => {
+    water_amount = 0.0;
+  };
+
+  $: onPieceTypeChange(piece_type);
+
   $: is_piece = piece_type != -1;
 
   const dispatch = createEventDispatcher();
